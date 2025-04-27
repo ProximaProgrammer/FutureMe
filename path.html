@@ -19,8 +19,9 @@
       }
 
       .chart-container {
-        width: 80%;
-        margin: -50vh 10vw;
+        width: 100%;
+        height: 800px;
+        margin: -20% 0%;
       }
 
       body.show {
@@ -55,12 +56,6 @@
         border-radius: 50%;
         cursor: pointer;
       }
-      
-      .chart-container {
-        width: 80%;
-        height: 400px;
-        margin: 30px auto;
-      }
     </style>
     <!-- Load Chart.js properly -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -86,10 +81,40 @@ Next...
 </div>
 
 <script>
-    // Button event listener
-    document.getElementById('scrollDownBtn').addEventListener('click', () => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    });
+
+document.getElementById('scrollDownBtn').addEventListener('click', () => {
+    // Define the target position - you can change this value as needed
+    // For example, use document.body.scrollHeight for full scroll or a specific value like 1000
+    const targetPosition = document.body.scrollHeight; // or any number like 1000
+    
+    // Define the scroll duration in milliseconds (5000ms = 5 seconds)
+    const duration = 5000;
+    
+    // Get current scroll position
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime = null;
+    
+    // Custom smooth scroll function
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        
+        // Easing function for smooth movement
+        const ease = function(t) {
+            return t<0.5 ? 2*t*t : -1+(4-2*t)*t;
+        };
+        
+        window.scrollTo(0, startPosition + distance * ease(progress));
+        
+        if (timeElapsed < duration) {
+            requestAnimationFrame(animation);
+        }
+    }
+    
+    requestAnimationFrame(animation);
+});
 
     // On load function
     window.onload = function() {
@@ -200,13 +225,21 @@ Next...
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                aspectRatio: 2,
+                layout: {
+                    padding: {
+                        top: 10,    // Add padding to change position
+                        bottom: 20,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     title: {
                         display: true,
                         text: `Employment History for ${profession}`,
                         font: {
-                            size: 20
+                            size: 24
                         }
                     },
                     tooltip: {
@@ -307,8 +340,6 @@ Next...
                 }
 
                 const pods = parsedData.queryresult?.pods || [];
-                console.log('Number of pods received:', pods.length);
-
                 let peopleEmployed = '';
                 let meanIncome = '';
                 let employmentHistoryData = null;
@@ -351,7 +382,6 @@ Next...
                 console.error('Fetch error:', err);
                 document.getElementById('peopleEmployedResult').innerText = 'Fetch error';
                 document.getElementById('meanIncomeResult').innerText = 'Fetch error';
-                // Try to render a chart with mock data even on error
                 renderEmploymentHistoryGraph(null, profession, null);
             });
     }

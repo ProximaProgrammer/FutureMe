@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #c7ffaf">
+
+<h id="wolframtitle" style="color: rgb(12, 6, 32); font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: 20px; margin-left: 1%; margin-top: 1%">
+    Powered by <span style="color: red">Wolfram</span><span style="color: rgb(229, 128, 12)">Alpha</span>™.
+</h>
+
+<img src="page2topreal.png" style="width: 45%;max-width: 70vw;height: auto;display: block;margin: 0 auto;">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Profession Stats</title>
+    <style>
+      body {
+        opacity: 0;
+        font-family: sans-serif;
+        padding: 20px;
+        transition: opacity 2s ease-out;
+      }
+
+      body.show {
+        opacity: 1;
+        font-family: sans-serif;
+        padding: 20px;
+        transition: opacity 2s ease-out;
+      }
+  
+      .stats {
+        text-align: center;
+      }
+  
+      .result {
+        margin: 10px 0;
+        font-size: 18px;
+      }
+  
+      .loading {
+        text-align: center;
+        font-size: 18px;
+      }
+    </style>
+</head>
+
+<body>
+<p id = "firstpart" style="color: rgb(2, 39, 17); font-size: 20%; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; text-align: center; top: 50vh">
+</p>
+</body>
+
+
+
+
+<div class="stats">
+    <h1 style="color: rgb(4, 4, 84)">Stats for Profession</h1>
+    <div id="professionName"></div>
+    <div id="peopleEmployed" class="result">People Employed: <span id="peopleEmployedResult">Loading...</span></div>
+    <div id="meanIncome" class="result">Mean Income: <span id="meanIncomeResult">Loading...</span></div>
+</div>
+
+<script>
+    window.onload = () => {
+        document.body.classList.add('show');
+    }
+    
+    var profession = localStorage.getItem("profession");
+    document.getElementById("firstpart").innerText = `Future ${profession}!`
+    document.getElementById("firstpart").style = "color: rgb(2, 39, 13); font-size: 350%; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; text-align: center";
+
+    const apiKey = 'GVAJ4Q-KJ5QTE2KVL';    
+    const queryUrl = `https://api.wolframalpha.com/v2/query?input=${encodeURIComponent(profession)}&format=plaintext&output=json&appid=${apiKey}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(queryUrl)}`;
+
+    fetch(proxyUrl)
+    .then(response => response.json())
+    .then(data => {
+      let raw = data.contents;
+
+      let parsedData;
+      try {
+        parsedData = JSON.parse(raw);
+      } catch (err) {
+        console.error('JSON parse failed:', err);
+        document.getElementById('peopleEmployedResult').innerText = 'Error (invalid data)';
+        document.getElementById('meanIncomeResult').innerText = 'Error (invalid data)';
+        return;
+      }
+
+      const pods = parsedData.queryresult?.pods || [];
+      console.log('Received pods:', pods);
+
+      let peopleEmployed = '';
+      let meanIncome = '';
+
+      pods.forEach(pod => {
+        const title = pod.title.toLowerCase();
+        const content = pod.subpods?.[0]?.plaintext || '';
+
+        if (title.includes('employment') || title.includes('people employed')) {
+          peopleEmployed = content;
+        }
+
+        if (title.includes('mean income') || title.includes('mean wage') || title.includes('median wage') || title.includes('average income') || title.includes('wage')) {
+          meanIncome = content;
+        }
+      });
+
+      document.getElementById('peopleEmployedResult').innerText = peopleEmployed || 'Not available';
+      document.getElementById('meanIncomeResult').innerText = meanIncome || 'Not available';
+    })
+    .catch(err => {
+      console.error('Fetch error:', err);
+      document.getElementById('peopleEmployedResult').innerText = 'Fetch error';
+      document.getElementById('meanIncomeResult').innerText = 'Fetch error';
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html style="background-color: #6dbfc4" lang="en">
+<head>
+  <style>
+    .hero-image {
+      width: 100%;
+      max-width: 70vw;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+  <h style="color: rgb(12, 6, 32); font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: 20px; margin-left: 1%; margin-top: 1%">
+    Powered by <span style="color: red">Wolfram</span><span style="color: rgb(229, 128, 12)">Alpha</span>™.
+  </h>
+
+    <meta charset="UTF-8">
+    <title>Slide In Button</title>
+    <style>
+      body {
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 200vh; /* make page scrollable */
+      }
+  
+      .start-button {
+        position: absolute;
+        top: 50px;
+        left: -100vw;
+        padding: 6vh 6vw;
+        font-size: 6vh;
+        cursor: pointer;
+        background-color: rgb(255, 145, 0);
+        color: white;
+        border-radius: 10%;
+        border: 0px;
+        opacity: 0;
+        transition: left 2s ease-out, opacity 2s ease-out;
+      }
+  
+      .start-button.show {
+        position: absolute;
+        left:40%;
+        opacity: 1;
+        margin-top: 60vh;
+      }
+  
+      #happy {
+        opacity: 0;
+        transition: opacity 2s ease-in;
+        text-align: center;
+        font-size: 40px;
+        margin-top: 130vh; /* position further down for scroll effect */
+      }
+  
+      #happy.visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+
+
+
+
+<body>
+
+<img src="titlecard.png" alt="Hero Image" class="hero-image">
+
+
+<button class="start-button" id="startBtn" style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Start</button>
+
+<div id="happy" style="color: rgb(1, 49, 1)">
+    I want to become a...
+    <input 
+      type="text" 
+      id = "careerinput"
+      placeholder="Put any profession you want here!" 
+      style="width: 80%; padding: 12px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;">
+      
+      <img src="career1.png" style="position: absolute; left: 10vw; top: 160vh;width: 100%;max-width: 15vw;height: auto; display: block;margin: 0 auto;">
+      <img src="career2.png" style="position: absolute; left: 40vw; top: 210vh;width: 100%;max-width: 15vw;height: auto; display: block;margin: 0 auto;">
+      <img src="career3.png" style="position: absolute; left: 70vw; top: 150vh;width: 100%;max-width: 15vw;height: auto; display: block;margin: 0 auto;">
+    </div>
+
+
+<script>
+  // Show the button with animation
+  window.onload = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0); // Scroll to the top
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    }, 10); // Small delay to have function scroll-to-top
+    document.getElementById('startBtn').classList.add('show');
+  };
+
+
+  // Handle button click
+  document.getElementById('startBtn').addEventListener('click', () => {
+    const happyDiv = document.getElementById('happy');
+    happyDiv.scrollIntoView({ behavior: 'smooth' });
+
+    setTimeout(() => {
+      happyDiv.classList.add('visible');
+    }, 800); // delay to sync with scroll
+  });
+</script>
+
+
+
+<script>
+var input = document.getElementById("happy");
+var career = document.getElementById("careerinput");
+career.value = "";
+
+// redirects to "career path" page when the user presses a key on the keyboard
+input.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    
+    const profession = career.value; //fill in with input
+
+    if (profession) {
+        localStorage.setItem("profession", profession);
+        location.href = `path.html`;
+    } else {
+        javascript:alert('Please enter a profession!');
+    }
+  }
+});
+</script>
+
+
+</body>
+</html>

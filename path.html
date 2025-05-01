@@ -56,6 +56,16 @@
         border-radius: 50%;
         cursor: pointer;
       }
+
+      #plannerBtn {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        padding: 10px 15px;
+        font-size: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
       
       /* New styles for the data table */
       .data-table {
@@ -104,6 +114,10 @@
 
 <button id="scrollDownBtn" style="position: absolute; top: 92%; right: 5%; padding: 3vh 3vw; background-color: rgb(69, 168, 210); color: rgb(246, 245, 250); font-size: 20px; border-radius: 20%; border: 0px">
 Next...
+</button>
+
+<button id="plannerBtn" style="position: absolute; top: 310%; right: 5%; padding: 3vh 3vw; background-color: rgb(8, 157, 35); color: rgb(246, 245, 250); font-size: 20px; border-radius: 20%; border: 0px">
+Plan Your Future!
 </button>
 
 <div class="stats">
@@ -166,6 +180,10 @@ Next...
 document.getElementById('scrollDownBtn').addEventListener('click', () => {
     const statsPos = document.getElementById("statsheader");
     statsPos.scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('plannerBtn').addEventListener('click', () => {
+    location.href = `planner.html`;
 });
 
     // On load function
@@ -440,10 +458,8 @@ document.getElementById('scrollDownBtn').addEventListener('click', () => {
                             AggregatePay = content[content.indexOf("aggregate")+3]+" "+content[content.indexOf("aggregate")+4]|| "unknown";
                         }
                         let iqrPart = content[content.indexOf("range")+4];
-                        //iqrPart = iqrPart.split('\n')[0];
+                        iqrPart = iqrPart.split('\n')[0];
                         incomeIQR = "$"+content[content.indexOf("range")+2]+" to $"+iqrPart|| "unknown";
-
-                        console.log("fetched DATATATATATA");
                     
                         document.getElementById("tablepeopleEmployed").innerText = peopleEmployed;
                         document.getElementById("tableyearlyChange").innerText = yearlyChange;

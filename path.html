@@ -19,8 +19,9 @@
       }
 
       .chart-container {
-        width: 80%;
-        margin: -50vh 10vw;
+        width: 100%;
+        height: 800px;
+        margin: -20% 0%;
       }
 
       body.show {
@@ -56,10 +57,41 @@
         cursor: pointer;
       }
       
-      .chart-container {
+      /* New styles for the data table */
+      .data-table {
         width: 80%;
-        height: 400px;
-        margin: 30px auto;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      
+      .data-table th {
+        background-color: rgb(4, 4, 84);
+        color: white;
+        padding: 12px 15px;
+        text-align: left;
+        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      }
+      
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid #ddd;
+        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      }
+      
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      
+      .data-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      
+      .data-table tr:hover {
+        background-color: #f1f1f1;
       }
     </style>
     <!-- Load Chart.js properly -->
@@ -75,10 +107,54 @@ Next...
 </button>
 
 <div class="stats">
-    <h1 style="color: rgb(4, 4, 84)">Stats for Profession</h1>
-    <div id="professionName"></div>
-    <div id="peopleEmployed" class="result">People Employed: <span id="peopleEmployedResult">Loading...</span></div>
-    <div id="meanIncome" class="result">Mean Income: <span id="meanIncomeResult">Loading...</span></div>
+    <h1 id="statsheader" style="color: rgb(4, 4, 84)">Stats for Profession</h1>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Statistic</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Profession</td>
+                <td id="tableprofessionName">Loading...</td>
+            </tr>
+            <tr>
+                <td>People Employed</td>
+                <td id="tablepeopleEmployed">Loading...</td>
+            </tr>
+            <tr>
+                <td>Yearly Change</td>
+                <td id="tableyearlyChange">Loading...</td>
+            </tr>
+            <tr>
+                <td>Workforce Fraction</td>
+                <td id="tableworkforceFraction">Loading...</td>
+            </tr>
+            <tr>
+                <td>Mean Income</td>
+                <td id="tablemeanWage">Loading...</td>
+            </tr>
+            <tr>
+                <td>Mean Income Yearly Change</td>
+                <td id="tablemeanWageYearlyChange">Loading...</td>
+            </tr>
+            <tr>
+                <td>Aggregate Pay</td>
+                <td id="tableaggregatePay">Loading...</td>
+            </tr>
+            <tr>
+                <td>Income Interquartile Range</td>
+                <td id="tableincomeIQR">Loading...</td>
+            </tr>
+            <tr>
+                <td>Field Category</td>
+                <td id="tableFieldCategory">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <div class="chart-container">
@@ -86,10 +162,11 @@ Next...
 </div>
 
 <script>
-    // Button event listener
-    document.getElementById('scrollDownBtn').addEventListener('click', () => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    });
+
+document.getElementById('scrollDownBtn').addEventListener('click', () => {
+    const statsPos = document.getElementById("statsheader");
+    statsPos.scrollIntoView({ behavior: 'smooth' });
+});
 
     // On load function
     window.onload = function() {
@@ -102,7 +179,8 @@ Next...
         
         // For testing, set a default profession if none exists
         if (!localStorage.getItem("profession")) {
-            localStorage.setItem("profession", "Software Developer");
+            alert("NOTE: profession does not exist, so a default will be used.");
+            localStorage.setItem("profession", "Average Worker");
         }
         
         // Set the profession text
@@ -110,76 +188,74 @@ Next...
         document.getElementById("firstpart").innerText = `Future ${profession}!`;
         document.getElementById("firstpart").style = "color: rgb(2, 39, 13); font-size: 350%; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; text-align: center";
         
+        console.log(profession);
+        document.getElementById("tableprofessionName").innerText = profession;
+        document.getElementById("tableFieldCategory").innerText = determineFieldCategory(profession);
         // Fetch data for the profession
         fetchProfessionData(profession);
     };
-
-    // Function to create a mock/placeholder employment history based on profession
-    function createMockEmploymentHistory(profession, peopleEmployed) {
-        console.log("Creating mock employment history for:", profession);
+    
+    // Function to determine field category based on profession name
+    function determineFieldCategory(profession) {
+        const profLower = profession.toLowerCase();
         
-        // Extract a base number from peopleEmployed if available
-        let baseNumber = 100000;
-        if (typeof peopleEmployed === 'string') {
-            const match = peopleEmployed.match(/([0-9,]+)/);
-            if (match) {
-                baseNumber = parseInt(match[0].replace(/,/g, ''), 10);
-                if (isNaN(baseNumber)) baseNumber = 100000;
-            }
+        if (profLower.includes('develop') || profLower.includes('program') || 
+            profLower.includes('software') || profLower.includes('tech') ||
+            profLower.includes('engineer')) {
+            return 'Technology';
+        } else if (profLower.includes('doctor') || profLower.includes('nurse') || 
+                  profLower.includes('health') || profLower.includes('medic') || profLower.includes('pharm') || profLower.includes('surgeon')) {
+            return 'Healthcare';
+        } else if (profLower.includes('teach') || profLower.includes('educat') || 
+                  profLower.includes('professor')) {
+            return 'Education';
+        } else if (profLower.includes('finance') || profLower.includes('account') || 
+                  profLower.includes('bank')) {
+            return 'Finance';
+        } else if (profLower.includes('lawyer') || profLower.includes('attorney') || 
+                  profLower.includes('legal')) {
+            return 'Legal';
+        } else {
+            return 'General Professional';
         }
-        
-        // Create years for the last 10 years
+    }
+
+    // Function to create a placeholder employment history based on profession
+    function createMockEmploymentHistory(profession, peopleEmployed) {
         const currentYear = new Date().getFullYear();
         const years = [];
         const values = [];
         
         for (let i = 10; i >= 0; i--) {
             years.push(currentYear - i);
-            
-            // Create somewhat realistic trend based on profession type
-            let growthFactor = 1;
-            if (profession.toLowerCase().includes('developer') || 
-                profession.toLowerCase().includes('data') || 
-                profession.toLowerCase().includes('ai') ||
-                profession.toLowerCase().includes('tech')) {
-                // High growth fields - show upward trend
-                growthFactor = 1 + (i * 0.08);
-            } else if (profession.toLowerCase().includes('teacher') || 
-                       profession.toLowerCase().includes('nurse') || 
-                       profession.toLowerCase().includes('doctor')) {
-                // Stable fields - show steady growth
-                growthFactor = 1 + (i * 0.03);
-            } else {
-                // Default moderate growth
-                growthFactor = 1 + (i * 0.05);
-            }
-            
-            // Add some randomness
-            const randomVariance = 0.95 + (Math.random() * 0.1);
-            const value = Math.round((baseNumber / growthFactor) * randomVariance);
-            values.push(value);
+            values.push(10000 + 30*(10+Math.random())*(10-i) + 200*(i%3));
         }
         
         return { labels: years, values: values };
     }
 
+    let unavailable = false;
+
     // Function to render employment history graph
     function renderEmploymentHistoryGraph(data, profession, peopleEmployed) {
         console.log("Rendering graph with data:", data);
+
         const ctx = document.getElementById('employmentHistoryChart').getContext('2d');
         let chartData;
         
         if (data && typeof data === 'string') {
             // Try to parse real data if we have it
+            console.log("have real dataaaa")
             chartData = parseEmploymentHistoryData(data);
         } else {
-            // Create mock data if we don't have real data
+            // Create placeholder data if we don't have real data
             chartData = createMockEmploymentHistory(profession, peopleEmployed);
         }
         
         // Make sure we have data to render
         if (!chartData || chartData.labels.length === 0 || chartData.values.length === 0) {
-            console.log("No valid chart data, creating mock data");
+            console.log("No valid chart data, creating placeholder data");
+            unavailable = true;
             chartData = createMockEmploymentHistory(profession, peopleEmployed);
         }
 
@@ -195,18 +271,26 @@ Next...
                     backgroundColor: 'db',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.3 // Smooth curve
+                    tension: 0.3 // smooth curve
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                aspectRatio: 2,
+                layout: {
+                    padding: {
+                        top: 5,
+                        bottom: 20,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     title: {
                         display: true,
-                        text: `Employment History for ${profession}`,
+                        text: `Employment History for a(n) ${profession} ${unavailable ? "[Actual Data Unavailable]" : ""}`,
                         font: {
-                            size: 20
+                            size: 24
                         }
                     },
                     tooltip: {
@@ -301,57 +385,83 @@ Next...
                     console.error('JSON parse failed:', err);
                     document.getElementById('peopleEmployedResult').innerText = 'Error (invalid data)';
                     document.getElementById('meanIncomeResult').innerText = 'Error (invalid data)';
+                    document.getElementById('tablePeopleEmployed').innerText = 'Error (invalid data)';
+                    document.getElementById('tableMeanIncome').innerText = 'Error (invalid data)';
                     // Still try to render a chart with mock data
                     renderEmploymentHistoryGraph(null, profession, null);
                     return;
                 }
 
                 const pods = parsedData.queryresult?.pods || [];
-                console.log('Number of pods received:', pods.length);
 
-                let peopleEmployed = '';
-                let meanIncome = '';
-                let employmentHistoryData = null;
+                let peopleEmployed = null;
+                let yearlyChange= null;
+                let workforceFraction = null;
+                let meanWage= null;
+                let meanWageYearlyChange = null;
+                let AggregatePay = null;
+                let incomeIQR = null;
 
-                // Debug: show all pod titles
+                // for debugging: show all pod titles
                 console.log("All pod titles:", pods.map(pod => pod.title));
 
                 pods.forEach(pod => {
                     const title = pod.title.toLowerCase();
-                    const content = pod.subpods?.[0]?.plaintext || '';
+                    let content = pod.subpods?.[0]?.plaintext || '';
                     console.log(`Pod: ${title}`);
-
-                    if (title.includes('employment') || title.includes('people employed')) {
-                        peopleEmployed = content;
-                        console.log(`Found employment data: ${content}`);
-                    }
-
-                    if (title.includes('mean income') || title.includes('mean wage') || 
-                        title.includes('median wage') || title.includes('average income') || 
-                        title.includes('wage')) {
-                        meanIncome = content;
-                        console.log(`Found income data: ${content}`);
-                    }
-
-                    // Find employment history data
                     if (title.includes('employment history')) {
-                        console.log('Employment history found:', content);
+                        console.log('Employment history section found');
                         employmentHistoryData = content;
+                        console.log("content length: ",content.length)
+                    }
+                    if (title.includes('employment summary')) {
+
+                    /* SAMPLE:
+                        people employed | 716950 people
+                        yearly change | +14040 people (+2%)
+                        workforce fraction | 0.5% (1 in 212)
+                        mean wage | $263840 per year (US dollars per year)
+                        mean wage yearly change | +$11850 per year (+5%)
+                        aggregate pay | $189.2 billion per year (2022 data)  
+                        50% range | 125860 to 155550
+                    */
+                        
+                        content = content.split(' ');
+                        console.log(content);
+
+                        peopleEmployed = content[content.indexOf("employed")+2] || "unknown";
+                        yearlyChange = content[content.indexOf("change")+2] || "unknown";
+                        workforceFraction = content[content.indexOf("fraction")+2] || "unknown";
+                        meanWage = content[content.indexOf("wage")+2] || "unknown";
+                        meanWageYearlyChange = content[content.indexOf("wage")+13] || "unknown";
+                        if (content.indexOf("aggregate")==-1) {
+                            AggregatePay = "unknown";
+                        } else {
+                            AggregatePay = content[content.indexOf("aggregate")+3]+" "+content[content.indexOf("aggregate")+4]|| "unknown";
+                        }
+                        let iqrPart = content[content.indexOf("range")+4];
+                        //iqrPart = iqrPart.split('\n')[0];
+                        incomeIQR = "$"+content[content.indexOf("range")+2]+" to $"+iqrPart|| "unknown";
+
+                        console.log("fetched DATATATATATA");
+                    
+                        document.getElementById("tablepeopleEmployed").innerText = peopleEmployed;
+                        document.getElementById("tableyearlyChange").innerText = yearlyChange;
+                        document.getElementById("tableworkforceFraction").innerText = workforceFraction;
+                        document.getElementById("tablemeanWage").innerText = meanWage;
+                        document.getElementById("tablemeanWageYearlyChange").innerText = meanWageYearlyChange;
+                        document.getElementById("tableaggregatePay").innerText = AggregatePay;
+                        document.getElementById("tableincomeIQR").innerText = incomeIQR;
+
+                    
                     }
                 });
-
-                // Update display elements
-                document.getElementById('peopleEmployedResult').innerText = peopleEmployed || 'Not available';
-                document.getElementById('meanIncomeResult').innerText = meanIncome || 'Not available';
-
-                // Always render graph, using real data if available or mock data if not
                 renderEmploymentHistoryGraph(employmentHistoryData, profession, peopleEmployed);
             })
             .catch(err => {
                 console.error('Fetch error:', err);
-                document.getElementById('peopleEmployedResult').innerText = 'Fetch error';
-                document.getElementById('meanIncomeResult').innerText = 'Fetch error';
-                // Try to render a chart with mock data even on error
+                const errorText = 'Fetch error';
+                
                 renderEmploymentHistoryGraph(null, profession, null);
             });
     }
